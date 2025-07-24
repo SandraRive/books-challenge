@@ -1,11 +1,10 @@
-// src/services/api.ts
+// client/src/services/api.ts
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://books-challenge-api.onrender.com", // tu URL de Render/Heroku
+  baseURL: process.env.REACT_APP_API_URL || "http://localhost:3001",
 });
 
-// Interceptor para añadir el token JWT si existe
 api.interceptors.request.use(config => {
   const token = localStorage.getItem("token");
   if (token && config.headers) {
