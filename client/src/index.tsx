@@ -1,3 +1,4 @@
+// src/index.tsx
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
@@ -6,6 +7,7 @@ import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { ChallengeProvider } from "./context/ChallengeContext";
+import { AchievementProvider } from "./context/AchievementContext";  // <-- AÑADIR IMPORT
 
 const container = document.getElementById("root")!;
 const root = ReactDOM.createRoot(container);
@@ -15,7 +17,9 @@ root.render(
     <BrowserRouter>
       <AuthProvider>
         <ChallengeProvider>
-          <App />
+          <AchievementProvider>  
+            <App />
+          </AchievementProvider>
         </ChallengeProvider>
       </AuthProvider>
     </BrowserRouter>

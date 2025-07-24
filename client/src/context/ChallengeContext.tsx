@@ -1,38 +1,74 @@
-// src/context/ChallengeContext.tsx
+// client/src/context/ChallengeContext.tsx
 import React, {
   createContext,
-  useState,
-  useEffect,
   ReactNode,
+  useContext,
+  useEffect,
+  useState,
 } from "react";
-import { fetchChallenges } from "../services/challenges";
+import {
+  fetchChallenges,
+  createChallenge as apiCreate,
+  updateChallenge as apiUpdate,
+  NewChallenge,
+} from "../services/challenges";
+
 import { Challenge } from "../types";
 
 interface ChallengeContextData {
   challenges: Challenge[];
   reload: () => Promise<void>;
+  createChallenge: (data: NewChallenge) => Promise<void>;
+  toggleChallenge: (id: string, completed: boolean) => Promise<void>;
 }
 
-export const ChallengeContext = createContext<ChallengeContextData>({
-  challenges: [],
-  reload: async () => {},
-});
+const ChallengeContext = createContext<ChallengeContextData | undefined>(
+  undefined
+);
 
-export function ChallengeProvider({ children }: { children: ReactNode }) {
+export const ChallengeProvider = ({ children }: { children: ReactNode }) => {
   const [challenges, setChallenges] = useState<Challenge[]>([]);
 
-  const load = async () => {
+  // Carga inicial y recarga
+  const reload = async () => {
     const data = await fetchChallenges();
     setChallenges(data);
   };
 
   useEffect(() => {
-    load();
+    reload();
   }, []);
 
+  // Crea un reto
+  const createChallenge = async (data: NewChallenge) => {
+    const created = await apiCreate(data);
+    setChallenges((prev) => [...prev, created]);
+  };
+
+  // Marca/desmarca reto
+  const toggleChallenge = async (id: string, completed: boolean) => {
+    const updated = await apiUpdate(id, completed);
+    setChallenges((prev) =>
+      prev.map((c) => (c._id === id ? updated : c))
+    );
+  };
+
   return (
-    <ChallengeContext.Provider value={{ challenges, reload: load }}>
+    <ChallengeContext.Provider
+      value={{ challenges, reload, createChallenge, toggleChallenge }}
+    >
       {children}
     </ChallengeContext.Provider>
   );
+};
+
+// Hook auxiliar
+export function useChallenges() {
+  const ctx = useContext(ChallengeContext);
+  if (!ctx) {
+    throw new Error(
+      "useChallenges debe usarse dentro de <ChallengeProvider>"
+    );
+  }
+  return ctx;
 }

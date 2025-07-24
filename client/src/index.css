@@ -1,4 +1,27 @@
+/* 1. Importa la fuente Inter desde Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+/* 2. Directivas de Tailwind */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* 3. Estilos globales adicionales */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-gray-50 text-gray-800 font-sans;
+}
+
+/* 4. Clases utilitarias para botones */
+.btn-purple {
+  @apply bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition;
+}
+.btn-green {
+  @apply bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition;
+}
+.btn-red {
+  @apply bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition;
+}
