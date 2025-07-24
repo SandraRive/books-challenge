@@ -1,37 +1,52 @@
 // src/context/AuthContext.tsx
-import React, { createContext, useState, ReactNode, useEffect } from "react";
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
-interface AuthContextProps {
+interface AuthContextData {
   token: string | null;
-  login: (token: string) => void;
+  login: (email: string, password: string) => Promise<void>;  // hace fetch /login
+  authenticate: (token: string) => void;                      // guarda token
   logout: () => void;
 }
 
-export const AuthContext = createContext<AuthContextProps>({
+export const AuthContext = createContext<AuthContextData>({
   token: null,
-  login: () => {},
+  login: async () => {},
+  authenticate: () => {},
   logout: () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(
+    () => localStorage.getItem("token")
+  );
 
-  useEffect(() => {
-    const saved = localStorage.getItem("token");
-    if (saved) setToken(saved);
-  }, []);
-
-  const login = (newToken: string) => {
-    localStorage.setItem("token", newToken);
-    setToken(newToken);
+  // login(email,password) → hace la petición y llama a authenticate
+  const login = async (email: string, password: string) => {
+    const resp = await fetch("/login", /* o api.post */);
+    const { token } = await resp.json();
+    authenticate(token);
   };
+
+  // authenticate(token) → guarda en localStorage y en estado
+  const authenticate = (tok: string) => {
+    localStorage.setItem("token", tok);
+    setToken(tok);
+  };
+
   const logout = () => {
     localStorage.removeItem("token");
     setToken(null);
   };
 
   return (
-    <AuthContext.Provider value={{ token, login, logout }}>
+    <AuthContext.Provider
+      value={{ token, login, authenticate, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );
